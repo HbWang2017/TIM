@@ -11,7 +11,8 @@ public class DataTransmission{
 	static Connection connect = null;
 	static Statement stmt = null;
 	static ResultSet rs = null;
-	private TicketCollection Result;
+	static TicketInfo TI = null;
+	static TicketCollection Result = new TicketCollection();
 	private static String ip_port = "jdbc:mysql://localhost:3306/TIM";
 	private static String user = "root";
 	private static String password = "gexiaodong123";
@@ -23,6 +24,20 @@ public class DataTransmission{
     	try {
 			connect = DriverManager.getConnection(ip_port,user,password);
 			stmt = connect.createStatement();
+	/*		String sql = "select * from TicketInfo";
+			PreparedStatement ps = connect.prepareStatement(sql);
+			rs = ps.executeQuery(); 
+			while(rs.next()) {
+				System.out.println(rs.getString("id"));
+				System.out.println(rs.getString("scity"));
+				System.out.println(rs.getString("tcity"));
+				System.out.println(rs.getString("date"));
+				System.out.println(rs.getInt("num"));
+				System.out.println(rs.getInt("price"));
+				TI = new TicketInfo(rs.getString("id"),rs.getString("scity"),
+						rs.getString("tcity"),rs.getString("date"),rs.getInt("num"),rs.getInt("price"));
+				Result.add(TI);	
+			}*/
     	}
     	catch (Exception e) {
 			System.out.print("get data error!");
@@ -38,26 +53,46 @@ public class DataTransmission{
 			connect.close(); 
 	}
 	
-	public TicketCollection getTickets(String SCity,String TCity,String date) throws SQLException {
+	public static TicketCollection getTickets(String SCity,String TCity,String date) throws SQLException {
 		new DataTransmission(ip_port,user,password);
-		String sql = "select * from TicketInfo where scity = ? AND tcity = ? AND date = ?";
+		String sql = "select * from TicketInfo  where scity = ? AND tcity = ? AND date = ?";
 		PreparedStatement ps = connect.prepareStatement(sql);
 		ps.setString(1, SCity);
 		ps.setString(2, TCity);
 		ps.setString(3, date);
 		rs = ps.executeQuery();
-		while(rs.next()) {
-			TicketInfo TI = new TicketInfo();
-			if (rs.getString("scity").equals(TI.getSCity()) 
-					&& rs.getString("tcity").equals(TI.getTCity()) && rs.getString("date").equals(TI.getDate()))
-				Result.add(TI);
+		while(rs.next()) {	
+	/*		System.out.println(rs.getString("id"));
+			System.out.println(rs.getString("scity"));
+			System.out.println(rs.getString("tcity"));
+			System.out.println(rs.getString("date"));
+			System.out.println(rs.getInt("num"));
+			System.out.println(rs.getInt("price"));*/
+			TI = new TicketInfo(rs.getString("id"),rs.getString("scity"),
+					rs.getString("tcity"),rs.getString("date"),rs.getInt("num"),rs.getInt("price"));
+	/*		System.out.println(TI.getID());
+			System.out.println(TI.getSCity());
+			System.out.println(TI.getTCity());
+			System.out.println(TI.getDate());
+			System.out.println(TI.getNum());
+			System.out.println(TI.getPrice());*/
+			Result.add(TI);	
 		}
 		close();
+		/*for (TicketInfo ptd:Result) {
+			System.out.println(ptd.getID());
+			System.out.println(ptd.getSCity());
+			System.out.println(ptd.getTCity());
+			System.out.println(ptd.getDate());
+			System.out.println(ptd.getNum());
+			System.out.println(ptd.getPrice());
+		}
+		*/
 		return Result;
 	}
 	
 	//始发/终点站包含 City的车票
-	public TicketCollection getTicket(String City) throws SQLException {
+	public static TicketCollection getTicket(String City) throws SQLException {
 		new DataTransmission(ip_port,user,password);
 		String sql = "select * from TicketInfo where scity = ? OR tcity = ?";
 		PreparedStatement ps = connect.prepareStatement(sql);
@@ -65,15 +100,15 @@ public class DataTransmission{
 		ps.setString(2, City);
 		rs = ps.executeQuery();
 		while(rs.next()) {
-			TicketInfo TI = new TicketInfo();
-			if (rs.getString("scity").equals(TI.getSCity()) || rs.getString("tcity").equals(TI.getTCity()))
-				Result.add(TI);
+			TI = new TicketInfo(rs.getString("id"),rs.getString("scity"),
+					rs.getString("tcity"),rs.getString("date"),rs.getInt("num"),rs.getInt("price"));
+			Result.add(TI);		
 		}
 		close();
 		return Result;
 	}
 	
-	public TicketInfo getTicket(String ID,String date) throws SQLException {
+	public static TicketInfo getTicket(String ID,String date) throws SQLException {
 		new DataTransmission(ip_port,user,password);
 		String sql = "select * from TicketInfo where id = ? AND date = ?";
 		PreparedStatement ps = connect.prepareStatement(sql);
@@ -81,9 +116,9 @@ public class DataTransmission{
 		ps.setString(2, date);
 		rs = ps.executeQuery();
 		while(rs.next()) {
-			TicketInfo TI = new TicketInfo();
-			if (rs.getString("id").equals(TI.getID()) || rs.getString("date").equals(TI.getDate()))
-				Result.add(TI);
+			TI = new TicketInfo(rs.getString("id"),rs.getString("scity"),
+				rs.getString("tcity"),rs.getString("date"),rs.getInt("num"),rs.getInt("price"));
+			Result.add(TI);	
 		}
 		close();
 		return new TicketInfo();
@@ -111,7 +146,6 @@ public class DataTransmission{
 	}
 	
 	public static void main(String[] args) throws SQLException {
-		purchaseRecord("3","2018-12-3","500","35");
-		updateTicketNum("1");
+		getTickets("Chongqing","Xian","2018/12/04"); 
 	}
 }

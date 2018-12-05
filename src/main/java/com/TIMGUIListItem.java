@@ -122,10 +122,8 @@ public class TIMGUIListItem extends JPanel implements ListCellRenderer {
 				    pad.add(selected);
 				else
 				    pad.add(ban_selected);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} 
+            catch (SQLException e) {e.printStackTrace();}
             add(pad);
             ID.setText(ti.getID());
             SCity.setText(ti.getSCity());

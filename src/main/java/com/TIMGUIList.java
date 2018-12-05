@@ -20,6 +20,7 @@ public class TIMGUIList extends JPanel {
     private JPanel show_list = new JPanel();
     private DefaultListModel info = new DefaultListModel();
     private final JList item_list = new JList(info);
+    private final JScrollPane scrollPane  = new JScrollPane();
     private static final int col_width = 200;
     private static final int row_height = 60;
     private static final int selection_flag_width = 100;
@@ -47,9 +48,11 @@ public class TIMGUIList extends JPanel {
         price.setText("Price");
         buy.setText("Selection");
         //布局
+        scrollPane.setViewportView(item_list);
         FlowLayout f=(FlowLayout)getLayout();
         f.setHgap(5);//水平间距
         //装饰
+        item_list.setOpaque(false);
         id.setEnabled(false);
         scity.setEnabled(false);
         tcity.setEnabled(false);
@@ -109,13 +112,20 @@ public class TIMGUIList extends JPanel {
         show_list.setLayout(new GridLayout(1, 1));
         info.removeAllElements();
         showList();
-        item_list.setPreferredSize(new Dimension(1500, 70));
-        add(item_list);
+//        item_list.setLocation(arg0, arg1);
+        scrollPane.setPreferredSize(new Dimension(1500, 800));
+        add(scrollPane);
     }
-    public void showList(/*, String type*/) throws SQLException{
+    public void showList() throws SQLException{
         //展示列表
         show_list.setLayout(new GridLayout(1, 1));
-        list = Control.getTicketCollection(SCity, TCity, Date);
+        if(list != null)
+        	list.clear();
+        try
+        {
+        	list = Control.getTicketCollection(SCity, TCity, Date);
+        }
+        catch(Exception e) {System.out.println("@showList"); e.printStackTrace();}
         info.removeAllElements();
         if(list.isEmpty())
         {
@@ -129,12 +139,32 @@ public class TIMGUIList extends JPanel {
                 TicketInfo curr = (TicketInfo)each_item.next();
                 info.addElement(curr);
             }
-            ListCellRenderer renderer = new TIMGUIListItem(Control);
-            item_list.setCellRenderer(renderer);
-            add(item_list);
+//            item_list = new JList(info);
+            item_list.setCellRenderer(new TIMGUIListItem(Control));
         }
         item_list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         item_list.updateUI();
+        item_list.revalidate();
+        scrollPane.updateUI();
+        scrollPane.revalidate();
+    }
+    public void refreshShowList(String SCity, String TCity, String Date) throws SQLException {
+    	
+    	this.SCity = SCity;
+        this.TCity = TCity;
+        this.Date = Date;
+//        clear();
+        item_list.invalidate();
+        scrollPane.invalidate();
+        item_list.repaint();
+        scrollPane.repaint();
+        showList();
+    }
+    public void clear()
+    {
+    	item_list.removeAll();
+//        scrollPane.removeAll();
+        scrollPane.setViewportView(item_list);
     }
     public TicketCollection getSearchResult(){return list;}//返回搜索结果集
     public JList getList(){return item_list;}//返回搜索列表
